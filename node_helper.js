@@ -12,13 +12,7 @@ module.exports = NodeHelper.create({
       process.exit(1);
     }
 
-    // Check if API key is provided
-    if (!this.config || !this.config.apiKey) {
-      console.error("Please provide your Google Generative AI API key in the module configuration.");
-      process.exit(1);
-    }
-
-    // Initialize other components or perform other initialization steps here
+    // Other initialization steps can be placed here if needed
   },
 
   getOrdinalSuffix(day) {
@@ -90,6 +84,7 @@ module.exports = NodeHelper.create({
     if (notification === "CONFIG") {
       this.config = payload;
       console.log("Received configuration:", this.config);
+    } else if (notification === "GENERATE_CONTENT") {
       this.generateContent();
     }
   }
