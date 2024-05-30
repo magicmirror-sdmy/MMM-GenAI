@@ -15,19 +15,11 @@ module.exports = NodeHelper.create({
     // Other initialization steps can be placed here if needed
   },
 
-  getFormattedCurrentTime() {
-    const now = new Date();
-    const day = now.getDate();
-    const month = now.toLocaleString('default', { month: 'long' });
-    const dayOfWeek = now.toLocaleString('default', { weekday: 'long' });
-    const year = now.getFullYear();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const ampm = hours >= 12 ? 'pm' : 'am';
-    const formattedHours = hours % 12 || 12; // Convert to 12-hour format
-    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-
-    return `${day} ${month} ${dayOfWeek} ${year} ${formattedHours}:${formattedMinutes}${ampm}`;
+  getOrdinalSuffix(day) {
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const relevantDigits = (day < 30) ? day % 20 : day % 30;
+    const suffix = (relevantDigits <= 3) ? suffixes[relevantDigits] : suffixes[0];
+    return suffix;
   },
 
   async generateContent() {
@@ -65,15 +57,12 @@ module.exports = NodeHelper.create({
         },
       ];
 
-      const formattedTime = this.getFormattedCurrentTime();
-      console.log("Current time:", formattedTime); // Log the current time to the console
-
       const parts = [
         { text: "input: 5am" },
         { text: "output: you're an early bird" },
         { text: "input: 6am" },
         { text: "output: hey there good morning" },
-        { text: `input: ${formattedTime}` },
+        { text: "input: december 2 maonday 2024 12 pm" },
         { text: "output: " },
       ];
 
@@ -87,14 +76,8 @@ module.exports = NodeHelper.create({
       const generatedText = response.text();
 
       console.log("Generated Content:", generatedText); // Log the generated content
-      this.sendSocketNotification("GENERATED_CONTENT", {
-        generatedText,
-        formattedTime,
-      });
-      console.log("Sent socket notification: GENERATED_CONTENT with payload", {
-        generatedText,
-        formattedTime,
-      });
+      this.sendSocketNotification("GENERATED_CONTENT", generatedText);
+      console.log("Sent socket notification: GENERATED_CONTENT with payload", generatedText);
     } catch (error) {
       console.error("Error generating content:", error);
     }
