@@ -12,7 +12,13 @@ module.exports = NodeHelper.create({
       process.exit(1);
     }
 
-    // this.generateContent(); // Don't call generateContent here, wait for the config to be received
+    // Check if API key is provided
+    if (!this.config || !this.config.apiKey) {
+      console.error("Please provide your Google Generative AI API key in the module configuration.");
+      process.exit(1);
+    }
+
+    // Initialize other components or perform other initialization steps here
   },
 
   getOrdinalSuffix(day) {
