@@ -12,26 +12,6 @@ module.exports = NodeHelper.create({
       process.exit(1);
     }
 
-    // Check if API key is provided
-    if (!this.config.apiKey) {
-      console.error("Please provide your Google Generative AI API key in the module configuration.");
-      process.exit(1);
-    }
-
-    this.expressApp.get("/currenttime", (req, res) => {
-      const now = new Date();
-      const day = now.getDate();
-      const month = now.toLocaleString('default', { month: 'long' });
-      const year = now.getFullYear();
-      const dayOfWeek = now.toLocaleString('default', { weekday: 'long' });
-      const hour = now.getHours();
-      const minute = now.getMinutes().toString().padStart(2, '0');
-      const period = hour >= 12 ? 'pm' : 'am';
-      const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-      const currentTime = `${day}${this.getOrdinalSuffix(day)} ${month} ${dayOfWeek} ${year} ${formattedHour}:${minute} ${period}`;
-      res.send(currentTime);
-    });
-
     // this.generateContent(); // Don't call generateContent here, wait for the config to be received
   },
 
@@ -44,65 +24,66 @@ module.exports = NodeHelper.create({
 
   async generateContent() {
     console.log("Generating content...");
+    try {
+      const apiKey = this.config.apiKey;
 
-    const apiKey = this.config.apiKey;
+      // Initialize GoogleGenerativeAI instance
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Initialize GoogleGenerativeAI instance
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const generationConfig = {
+        temperature: this.config.temperature || 0.95,
+        topK: 64,
+        topP: 0.95,
+        maxOutputTokens: 8192,
+      };
 
-    const generationConfig = {
-      temperature: this.config.temperature || 0.95,
-      topK: 64,
-      topP: 0.95,
-      maxOutputTokens: 8192,
-    };
+      const safetySettings = [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+      ];
 
-    const safetySettings = [
-      {
-        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-    ];
+      const parts = [
+        {text: "input: 5am"},
+        {text: "output: you're an early bird"},
+        {text: "input: 6am"},
+        {text: "output: hey there good morning"},
+        {text: "input: december 2 maonday 2024 12 pm"},
+        {text: "output: "},
+      ];
 
-    const parts = [
-      {text: "input: 5am"},
-      {text: "output: you're an early bird"},
-      {text: "input: 6am"},
-      {text: "output: hey there good morning"},
-      {text: "input: december 2 maonday 2024 12 pm"},
-      {text: "output: "},
-    ];
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts }],
+        generationConfig,
+        safetySettings,
+      });
 
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts }],
-      generationConfig,
-      safetySettings,
-    });
-
-    const response = result.response;
-    const generatedText = response.text();
-    this.sendSocketNotification("GENERATED_CONTENT", generatedText);
+      const response = result.response;
+      const generatedText = response.text();
+      this.sendSocketNotification("GENERATED_CONTENT", generatedText);
+    } catch (error) {
+      console.error("Error generating content:", error);
+    }
   },
 
   socketNotificationReceived(notification, payload) {
     if (notification === "CONFIG") {
       this.config = payload;
-      // You can add additional logging to confirm that the configuration has been received
       console.log("Received configuration:", this.config);
-      // After receiving the configuration, you can proceed with generating content or any other logic
       this.generateContent();
     }
   }
