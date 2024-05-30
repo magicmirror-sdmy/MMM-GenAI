@@ -88,8 +88,8 @@ module.exports = NodeHelper.create({
       const generatedText = response.text();
 
       console.log("Generated Content:", generatedText); // Log the generated content
-      this.sendSocketNotification("GENERATED_CONTENT", { content: generatedText, time: formattedTime });
-      console.log("Sent socket notification: GENERATED_CONTENT with payload", { content: generatedText, time: formattedTime });
+      this.sendSocketNotification("GENERATED_CONTENT", generatedText);
+      console.log("Sent socket notification: GENERATED_CONTENT with payload", generatedText);
     } catch (error) {
       console.error("Error generating content:", error);
       this.sendSocketNotification("GENERATED_CONTENT_ERROR", error.message);
