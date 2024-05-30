@@ -7,8 +7,6 @@ Module.register("MMM-GenAI", {
 
   start() {
     console.log("MMM-GenAI started");
-    this.sendSocketNotification("GET_CURRENT_TIME");
-    console.log("Sent socket notification: GET_CURRENT_TIME");
   },
 
   notificationReceived(notification, payload, sender) {
