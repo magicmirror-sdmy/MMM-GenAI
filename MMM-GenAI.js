@@ -7,6 +7,8 @@ Module.register("MMM-GenAI", {
 
   start() {
     console.log("MMM-GenAI started");
+    this.sendSocketNotification("GET_CURRENT_TIME");
+    console.log("Sent socket notification: GET_CURRENT_TIME");
   },
 
   notificationReceived(notification, payload, sender) {
@@ -26,17 +28,9 @@ Module.register("MMM-GenAI", {
   socketNotificationReceived(notification, payload) {
     console.log("Received socket notification:", notification);
     if (notification === "GENERATED_CONTENT") {
-      const { generatedText, formattedTime } = payload;
-      console.log("Generated content received:", generatedText);
-      console.log("Current time received:", formattedTime);
-      this.sendNotification("SHOW_ALERT", {
-        type: "notification",
-        message: `Generated Content: ${generatedText}\nCurrent Time: ${formattedTime}`
-      });
-      console.log("Sent notification: SHOW_ALERT with payload", {
-        generatedText,
-        formattedTime
-      });
+      console.log("Generated content received:", payload);
+      this.sendNotification("SHOW_ALERT", { type: "notification", message: payload });
+      console.log("Sent notification: SHOW_ALERT with payload", payload);
     }
   }
 });
