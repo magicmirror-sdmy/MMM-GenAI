@@ -105,8 +105,7 @@ def generate_content(api_key, temperature, time):
         "output: you need to seriously get a life",
         "input: 25th December Wednesday 11:19 PM",
         "output: hey there merry Christmas",
-        "input: 1st January Friday 6pm",
-        "output: ",
+       
     ]
 
     response = model.generate_content(prompt_parts)
