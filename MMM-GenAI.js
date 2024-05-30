@@ -16,7 +16,7 @@ Module.register("MMM-GenAI", {
     if (notification === "USERS_LOGIN") {
       console.log("Received USERS_LOGIN notification");
       // Get the current time and send it as payload
-      const currentTime = this.getFormattedCurrentTime();
+      const currentTime = moment().format("D MMMM dddd hh:mm A");
       this.sendSocketNotification("GENERATE_CONTENT", { time: currentTime });
       console.log("Sent socket notification: GENERATE_CONTENT with payload", { time: currentTime });
     }
@@ -25,20 +25,6 @@ Module.register("MMM-GenAI", {
       this.sendSocketNotification("CONFIG", this.config);
       console.log("Sent socket notification: CONFIG with payload", this.config);
     }
-  },
-
-  getFormattedCurrentTime() {
-    const now = moment();
-    const day = now.date();
-    const dayWithSuffix = day + this.getOrdinalSuffix(day);
-    return now.format(`DD MMMM dddd hh:mm A`).replace(now.format('DD'), dayWithSuffix);
-  },
-
-  getOrdinalSuffix(day) {
-    const suffixes = ['th', 'st', 'nd', 'rd'];
-    const relevantDigits = (day < 30) ? day % 20 : day % 30;
-    const suffix = (relevantDigits <= 3) ? suffixes[relevantDigits] : suffixes[0];
-    return suffix;
   },
 
   socketNotificationReceived(notification, payload) {
