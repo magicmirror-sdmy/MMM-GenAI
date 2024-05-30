@@ -12,9 +12,10 @@ Module.register("MMM-GenAI", {
   },
 
   notificationReceived(notification, payload, sender) {
-    if (notification === "USERS_LOGIN") {
-      console.log("Received USERS_LOGIN notification");
-      this.sendSocketNotification("GENERATE_CONTENT", payload);
-    }
+  if (notification === "USERS_LOGIN") {
+    console.log("Received USERS_LOGIN notification");
+    this.sendSocketNotification("GENERATE_CONTENT");
+  }
+
   },
 });
