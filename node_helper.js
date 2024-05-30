@@ -20,47 +20,62 @@ module.exports = NodeHelper.create({
 
     this.expressApp.get("/currenttime", (req, res) => {
       const now = new Date();
-      const currentTime = now.getHours() + ":" + now.getMinutes();
+      const day = now.getDate();
+      const month = now.toLocaleString('default', { month: 'long' });
+      const year = now.getFullYear();
+      const dayOfWeek = now.toLocaleString('default', { weekday: 'long' });
+      const hour = now.getHours();
+      const minute = now.getMinutes().toString().padStart(2, '0');
+      const period = hour >= 12 ? 'pm' : 'am';
+      const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+      const currentTime = `${day}${this.getOrdinalSuffix(day)} ${month} ${dayOfWeek} ${year} ${formattedHour}:${minute} ${period}`;
       res.send(currentTime);
     });
 
     this.generateContent();
   },
 
+  getOrdinalSuffix(day) {
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const relevantDigits = (day < 30) ? day % 20 : day % 30;
+    const suffix = (relevantDigits <= 3) ? suffixes[relevantDigits] : suffixes[0];
+    return suffix;
+  },
+
   async generateContent() {
-  console.log("Generating content...");
+    console.log("Generating content...");
 
-  const apiKey = this.config.apiKey;
+    const apiKey = this.config.apiKey;
 
-  // Initialize GoogleGenerativeAI instance
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Initialize GoogleGenerativeAI instance
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-  const generationConfig = {
-    temperature: this.config.temperature || 0.95,
-    topK: 64,
-    topP: 0.95,
-    maxOutputTokens: 8192,
-  };
+    const generationConfig = {
+      temperature: this.config.temperature || 0.95,
+      topK: 64,
+      topP: 0.95,
+      maxOutputTokens: 8192,
+    };
 
-  const safetySettings = [
-    {
-      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-      threshold: HarmBlockThreshold.BLOCK_NONE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-      threshold: HarmBlockThreshold.BLOCK_NONE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-      threshold: HarmBlockThreshold.BLOCK_NONE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-      threshold: HarmBlockThreshold.BLOCK_NONE,
-    },
-  ];
+    const safetySettings = [
+      {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+    ];
 
   const parts = [
     {text: "input: 5am"},
@@ -118,6 +133,7 @@ module.exports = NodeHelper.create({
     {text: "input: sunday"},
     {text: "output: go to church or go to hell?"},
     {text: "input: december 2 maonday 2024 12 pm"},
+    {text: "output: "},
   ];
 
   const result = await model.generateContent({
@@ -126,8 +142,8 @@ module.exports = NodeHelper.create({
     safetySettings,
   });
 
-  const response = result.response;
-  const generatedText = response.text();
-  this.sendSocketNotification("GENERATED_CONTENT", generatedText);
+    const response = result.response;
+    const generatedText = response.text();
+    this.sendSocketNotification("GENERATED_CONTENT", generatedText);
   },
 });
