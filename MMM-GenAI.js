@@ -15,14 +15,30 @@ Module.register("MMM-GenAI", {
     console.log("Received notification:", notification);
     if (notification === "USERS_LOGIN") {
       console.log("Received USERS_LOGIN notification");
-      this.sendSocketNotification("GENERATE_CONTENT");
-      console.log("Sent socket notification: GENERATE_CONTENT");
+      // Get the current time and send it as payload
+      const currentTime = this.getFormattedCurrentTime();
+      this.sendSocketNotification("GENERATE_CONTENT", { time: currentTime });
+      console.log("Sent socket notification: GENERATE_CONTENT with payload", { time: currentTime });
     }
     if (notification === "DOM_OBJECTS_CREATED") {
       console.log("DOM objects created");
       this.sendSocketNotification("CONFIG", this.config);
       console.log("Sent socket notification: CONFIG with payload", this.config);
     }
+  },
+
+  getFormattedCurrentTime() {
+    const now = moment();
+    const day = now.date();
+    const dayWithSuffix = day + this.getOrdinalSuffix(day);
+    return now.format(`DD MMMM dddd hh:mm A`).replace(now.format('DD'), dayWithSuffix);
+  },
+
+  getOrdinalSuffix(day) {
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const relevantDigits = (day < 30) ? day % 20 : day % 30;
+    const suffix = (relevantDigits <= 3) ? suffixes[relevantDigits] : suffixes[0];
+    return suffix;
   },
 
   socketNotificationReceived(notification, payload) {
