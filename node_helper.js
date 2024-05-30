@@ -18,53 +18,51 @@ module.exports = NodeHelper.create({
       process.exit(1);
     }
 
-    // Check if time argument is provided
-    if (process.argv.length < 3) {
-      console.error("Please provide the current time as an argument in the format: '30 may 2024, 10:45pm'");
-      process.exit(1);
-    }
+    this.expressApp.get("/currenttime", (req, res) => {
+      const now = new Date();
+      const currentTime = now.getHours() + ":" + now.getMinutes();
+      res.send(currentTime);
+    });
 
-    // Get the time argument
-    const inputTime = process.argv[2];
-    this.generateContent(inputTime);
+    this.generateContent();
   },
 
-  async generateContent(inputTime) {
-    console.log("Generating content...");
+  async generateContent() {
+  console.log("Generating content...");
 
-    const apiKey = this.config.apiKey;
+  const apiKey = this.config.apiKey;
 
-    // Initialize GoogleGenerativeAI instance
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  // Initialize GoogleGenerativeAI instance
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const generationConfig = {
-      temperature: this.config.temperature || 0.95,
-      topK: 64,
-      topP: 0.95,
-      maxOutputTokens: 8192,
-    };
+  const generationConfig = {
+    temperature: this.config.temperature || 0.95,
+    topK: 64,
+    topP: 0.95,
+    maxOutputTokens: 8192,
+  };
 
-    const safetySettings = [
-      {
-        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
-    ];
+  const safetySettings = [
+    {
+      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+      threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+      threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+      threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+      threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+  ];
 
-   const parts = [
+  const parts = [
     {text: "input: 5am"},
     {text: "output: you're an early bird"},
     {text: "input: 6am"},
@@ -123,13 +121,14 @@ module.exports = NodeHelper.create({
     {text: "output: "},
   ];
 
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts }],
-      generationConfig,
-      safetySettings,
-    });
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts }],
+    generationConfig,
+    safetySettings,
+  });
 
-    const response = result.response;
-    console.log(response.text());
+  const response = result.response;
+  const generatedText = response.text();
+  this.sendSocketNotification("GENERATED_CONTENT", generatedText);
   },
 });
