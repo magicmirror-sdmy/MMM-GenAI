@@ -58,12 +58,12 @@ module.exports = NodeHelper.create({
       ];
 
       const parts = [
-        {text: "input: 5am"},
-        {text: "output: you're an early bird"},
-        {text: "input: 6am"},
-        {text: "output: hey there good morning"},
-        {text: "input: december 2 maonday 2024 12 pm"},
-        {text: "output: "},
+        { text: "input: 5am" },
+        { text: "output: you're an early bird" },
+        { text: "input: 6am" },
+        { text: "output: hey there good morning" },
+        { text: "input: december 2 maonday 2024 12 pm" },
+        { text: "output: " },
       ];
 
       const result = await model.generateContent({
@@ -74,13 +74,17 @@ module.exports = NodeHelper.create({
 
       const response = result.response;
       const generatedText = response.text();
+
+      console.log("Generated Content:", generatedText); // Log the generated content
       this.sendSocketNotification("GENERATED_CONTENT", generatedText);
+      console.log("Sent socket notification: GENERATED_CONTENT with payload", generatedText);
     } catch (error) {
       console.error("Error generating content:", error);
     }
   },
 
   socketNotificationReceived(notification, payload) {
+    console.log("Received socket notification:", notification, "with payload:", payload);
     if (notification === "CONFIG") {
       this.config = payload;
       console.log("Received configuration:", this.config);
