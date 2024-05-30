@@ -7,8 +7,24 @@ Module.register("MMM-GenAI", {
 
   start() {
     console.log("MMM-GenAI started");
-    this.sendSocketNotification("GET_CURRENT_TIME");
-    console.log("Sent socket notification: GET_CURRENT_TIME");
+    const formattedTime = this.getFormattedCurrentTime();
+    this.sendSocketNotification("GET_CURRENT_TIME", formattedTime);
+    console.log("Sent socket notification: GET_CURRENT_TIME with payload", formattedTime);
+  },
+
+  getFormattedCurrentTime() {
+    const now = new Date();
+    const day = now.getDate();
+    const month = now.toLocaleString('default', { month: 'long' });
+    const dayOfWeek = now.toLocaleString('default', { weekday: 'long' });
+    const year = now.getFullYear();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+    
+    return `${day} ${month} ${dayOfWeek} ${year} ${formattedHours}:${formattedMinutes}${ampm}`;
   },
 
   notificationReceived(notification, payload, sender) {
