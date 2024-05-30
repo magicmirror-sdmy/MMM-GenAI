@@ -66,6 +66,8 @@ module.exports = NodeHelper.create({
       ];
 
       const formattedTime = this.getFormattedCurrentTime();
+      console.log("Current time:", formattedTime); // Log the current time to the console
+
       const parts = [
         { text: "input: 5am" },
         { text: "output: you're an early bird" },
@@ -85,8 +87,14 @@ module.exports = NodeHelper.create({
       const generatedText = response.text();
 
       console.log("Generated Content:", generatedText); // Log the generated content
-      this.sendSocketNotification("GENERATED_CONTENT", generatedText);
-      console.log("Sent socket notification: GENERATED_CONTENT with payload", generatedText);
+      this.sendSocketNotification("GENERATED_CONTENT", {
+        generatedText,
+        formattedTime,
+      });
+      console.log("Sent socket notification: GENERATED_CONTENT with payload", {
+        generatedText,
+        formattedTime,
+      });
     } catch (error) {
       console.error("Error generating content:", error);
     }
