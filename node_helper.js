@@ -118,7 +118,6 @@ module.exports = NodeHelper.create({
     {text: "input: sunday"},
     {text: "output: go to church or go to hell?"},
     {text: "input: december 2 maonday 2024 12 pm"},
-    {text: "output: "},
   ];
 
   const result = await model.generateContent({
