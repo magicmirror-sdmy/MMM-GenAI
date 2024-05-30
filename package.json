@@ -1,0 +1,41 @@
+{
+  "name": "magicmirror",
+  "version": "2.16.0",
+  "description": "The open source modular smart mirror platform.",
+  "main": "js/electron.js",
+  "scripts": {
+    "start": "DISPLAY=\"${DISPLAY:=:0}\" ./node_modules/.bin/electron js/electron.js",
+    "start:verbose": "DISPLAY=\"${DISPLAY:=:0}\" DEBUG=electron ./node_modules/.bin/electron js/electron.js"
+  },
+  "keywords": [
+    "magicmirror",
+    "smart",
+    "mirror"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.12.0",
+    "moment": "^2.29.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-node": "^12.0.0",
+    "eslint-plugin-import": "^2.24.0",
+    "eslint-plugin-html": "^7.0.0",
+    "electron": "^15.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MichMich/MagicMirror.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MichMich/MagicMirror/issues"
+  },
+  "homepage": "https://github.com/MichMich/MagicMirror#readme"
+}
