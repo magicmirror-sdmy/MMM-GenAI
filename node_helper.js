@@ -1,5 +1,6 @@
 const NodeHelper = require("node_helper");
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
+const moment = require("moment");
 
 module.exports = NodeHelper.create({
   start() {
@@ -22,10 +23,21 @@ module.exports = NodeHelper.create({
     return suffix;
   },
 
+  formatCurrentTime() {
+    const now = moment();
+    const day = now.date();
+    const dayWithSuffix = day + this.getOrdinalSuffix(day);
+    const formattedTime = now.format(`DD MMMM dddd hh:mm A`).replace(now.format('DD'), dayWithSuffix);
+    return formattedTime;
+  },
+
   async generateContent() {
     console.log("Generating content...");
     try {
       const apiKey = this.config.apiKey;
+      if (!apiKey) {
+        throw new Error("API key is not set in the configuration");
+      }
 
       // Initialize GoogleGenerativeAI instance
       const genAI = new GoogleGenerativeAI(apiKey);
@@ -57,12 +69,12 @@ module.exports = NodeHelper.create({
         },
       ];
 
+      // Get the formatted current time
+      const formattedTime = this.formatCurrentTime();
+
+      // Use the formatted time as part of the input to generate content
       const parts = [
-        { text: "input: 5am" },
-        { text: "output: you're an early bird" },
-        { text: "input: 6am" },
-        { text: "output: hey there good morning" },
-        { text: "input: december 2 maonday 2024 12 pm" },
+        { text: `input: ${formattedTime}` },
         { text: "output: " },
       ];
 
@@ -76,10 +88,11 @@ module.exports = NodeHelper.create({
       const generatedText = response.text();
 
       console.log("Generated Content:", generatedText); // Log the generated content
-      this.sendSocketNotification("GENERATED_CONTENT", generatedText);
-      console.log("Sent socket notification: GENERATED_CONTENT with payload", generatedText);
+      this.sendSocketNotification("GENERATED_CONTENT", { content: generatedText, time: formattedTime });
+      console.log("Sent socket notification: GENERATED_CONTENT with payload", { content: generatedText, time: formattedTime });
     } catch (error) {
       console.error("Error generating content:", error);
+      this.sendSocketNotification("GENERATED_CONTENT_ERROR", error.message);
     }
   },
 
@@ -89,7 +102,16 @@ module.exports = NodeHelper.create({
       this.config = payload;
       console.log("Received configuration:", this.config);
     } else if (notification === "GENERATE_CONTENT") {
-      this.generateContent();
+      if (!this.config || !this.config.apiKey) {
+        console.error("Configuration is missing or API key is not set");
+        this.sendSocketNotification("GENERATED_CONTENT_ERROR", "Configuration is missing or API key is not set");
+      } else {
+        this.generateContent();
+      }
+    } else if (notification === "GET_CURRENT_TIME") {
+      const currentTime = new Date().toISOString(); // Example time format
+      this.sendSocketNotification("CURRENT_TIME_RESPONSE", currentTime);
+      console.log("Sent socket notification: CURRENT_TIME_RESPONSE with payload", currentTime);
     }
   }
 });
