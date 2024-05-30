@@ -7,7 +7,6 @@ Module.register("MMM-GenAI", {
 
   start() {
     console.log("MMM-GenAI started");
-    this.sendSocketNotification("CONFIG", this.config); // Move this line to notificationReceived
     this.sendSocketNotification("GET_CURRENT_TIME");
   },
 
@@ -18,7 +17,7 @@ Module.register("MMM-GenAI", {
     }
     if (notification === "DOM_OBJECTS_CREATED") {
       console.log("DOM objects created");
-      this.sendSocketNotification("CONFIG", this.config); // Move the config notification here
+      this.sendSocketNotification("CONFIG", this.config);
     }
   },
 });
