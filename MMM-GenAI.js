@@ -8,12 +8,13 @@ Module.register("MMM-GenAI", {
   start() {
     console.log("MMM-GenAI started");
     this.sendSocketNotification("CONFIG", this.config);
+    this.sendSocketNotification("GET_CURRENT_TIME");
   },
 
   notificationReceived(notification, payload, sender) {
     if (notification === "USERS_LOGIN") {
       console.log("Received USERS_LOGIN notification");
-      this.sendSocketNotification("USERS_LOGIN", payload);
+      this.sendSocketNotification("GENERATE_CONTENT", payload);
     }
   },
 });
