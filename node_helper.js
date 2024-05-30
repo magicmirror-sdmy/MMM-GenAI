@@ -2,6 +2,8 @@ const NodeHelper = require("node_helper");
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
 const moment = require("moment");
 
+const MODEL_NAME = "gemini-1.5-flash";
+
 module.exports = NodeHelper.create({
   start() {
     console.log("Starting MMM-GenAI helper...");
@@ -16,6 +18,21 @@ module.exports = NodeHelper.create({
     // Other initialization steps can be placed here if needed
   },
 
+  getOrdinalSuffix(day) {
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const relevantDigits = (day < 30) ? day % 20 : day % 30;
+    const suffix = (relevantDigits <= 3) ? suffixes[relevantDigits] : suffixes[0];
+    return suffix;
+  },
+
+  formatCurrentTime() {
+    const now = moment();
+    const day = now.date();
+    const dayWithSuffix = day + this.getOrdinalSuffix(day);
+    const formattedTime = now.format(`DD MMMM dddd hh:mm A`).replace(now.format('DD'), dayWithSuffix);
+    return formattedTime;
+  },
+
   async generateContent(time) {
     console.log("Generating content with time:", time);
     try {
@@ -26,7 +43,7 @@ module.exports = NodeHelper.create({
 
       // Initialize GoogleGenerativeAI instance
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
       const generationConfig = {
         temperature: this.config.temperature || 0.95,
@@ -116,10 +133,9 @@ module.exports = NodeHelper.create({
     {text: "output: you need to seriously get a life"},
     {text: "input: 25th december wednesday 11:19 PM"},
     {text: "output: hey there merry christmas"},
-   
+    {text: "input: 1st january friday 6pm"},
+    {text: "output: "},
   ];
-
-
 
       const result = await model.generateContent({
         contents: [{ role: "user", parts }],
@@ -152,7 +168,7 @@ module.exports = NodeHelper.create({
         this.generateContent(payload.time);
       }
     } else if (notification === "GET_CURRENT_TIME") {
-      const currentTime = new Date().toISOString(); // Example time format
+      const currentTime = this.formatCurrentTime();
       this.sendSocketNotification("CURRENT_TIME_RESPONSE", currentTime);
       console.log("Sent socket notification: CURRENT_TIME_RESPONSE with payload", currentTime);
     }
