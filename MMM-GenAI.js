@@ -3,6 +3,7 @@ Module.register("MMM-GenAI", {
   defaults: {
     apiKey: "", // Default empty, to be set in config.js
     temperature: 0.95, // Default temperature value
+    filename: "sarcastic.json" // Default filename
   },
 
   start() {
