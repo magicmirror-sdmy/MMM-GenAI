@@ -389,6 +389,5 @@
     {"text": "output: it's already lunchtime. Time for a pumpkin spice latte?"},
     {"text": "input: 13 february saturday 7 am"},
     {"text": "output: It's a beautiful Saturday morning. Time to enjoy the weekend!"},
-    {"text": "input: "},
-    {"text": "output: "},
+   
   ]
