@@ -52,6 +52,9 @@ module.exports = NodeHelper.create({
       const fileContent = fs.readFileSync(filePath, "utf8");
       const parts = JSON.parse(fileContent);
 
+      // Integrate the provided time into the input
+      parts.push({ text: `input: ${time}` });
+
       // Initialize GoogleGenerativeAI instance
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: MODEL_NAME });
@@ -82,7 +85,6 @@ module.exports = NodeHelper.create({
         },
       ];
 
-      // Use the time as part of the input to generate content
       const result = await model.generateContent({
         contents: [{ role: "user", parts }],
         generationConfig,
