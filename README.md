@@ -9,6 +9,7 @@ config.js
       position: "top_left",
       config: {
         apiKey: "YOUR_API_KEY",
+        filename: "sarcastic.json"
         temperature: 0.95,
       },
     },
