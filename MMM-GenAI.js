@@ -18,8 +18,8 @@ Module.register("MMM-GenAI", {
       console.log("Received USERS_LOGIN notification");
       // Get the current time and send it as payload
       const currentTime = moment().format("D MMMM dddd hh:mm A");
-      this.sendSocketNotification("GENERATE_CONTENT", { time: currentTime });
-      console.log("Sent socket notification: GENERATE_CONTENT with payload", { time: currentTime });
+      this.sendSocketNotification("GENERATE_CONTENT", currentTime);
+      console.log("Sent socket notification: GENERATE_CONTENT with payload", currentTime);
     }
     if (notification === "DOM_OBJECTS_CREATED") {
       console.log("DOM objects created");
