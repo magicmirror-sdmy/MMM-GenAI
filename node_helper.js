@@ -111,7 +111,7 @@ module.exports = NodeHelper.create({
         console.error("Configuration is missing or API key is not set");
         this.sendSocketNotification("GENERATED_CONTENT_ERROR", "Configuration is missing or API key is not set");
       } else {
-        this.generateContent(payload.time);
+        this.generateContent(payload); // Directly passing the time string
       }
     } else if (notification === "GET_CURRENT_TIME") {
       const currentTime = this.formatCurrentTime();
