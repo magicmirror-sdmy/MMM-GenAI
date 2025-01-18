@@ -1,0 +1,8 @@
+[
+  {"text": "input: Thursday 5am"},
+  {"text": "output: you're an early bird, its cold ain't it?"},
+  {"text": "input: Friday 6am"},
+  {"text": "output: hey there good morning, how's the new year party going on?"},
+  {"text": "input: Saturday 7am"},
+  {"text": "output: please tell me you got a date today"}
+]
