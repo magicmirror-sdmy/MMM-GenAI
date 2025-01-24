@@ -16,7 +16,6 @@ Module.register("MMM-GenAI", {
     console.log("Received notification:", notification);
     if (notification === "USERS_LOGIN") {
       console.log("Received USERS_LOGIN notification");
-      // Get the current time and send it as payload
       const currentTime = moment().format("D MMMM dddd hh:mm A");
       this.sendSocketNotification("GENERATE_CONTENT", currentTime);
       console.log("Sent socket notification: GENERATE_CONTENT with payload", currentTime);
